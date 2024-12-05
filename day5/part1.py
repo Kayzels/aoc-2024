@@ -13,8 +13,10 @@ if __name__ == "__main__":
             rule = to_rule(line)
             rules.append(rule)
         elif "," in line:
-            update = to_update(line, rules)
+            update = to_update(line)
             updates.append(update)
+
+    PageUpdate.set_rules(rules)
 
     for update in updates:
         if update.is_valid():

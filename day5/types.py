@@ -12,9 +12,14 @@ def to_rule(line: str) -> Rule:
 
 
 class PageUpdate:
-    def __init__(self, order: list[int], rules: list[Rule]) -> None:
+    rules: list[Rule] = []
+
+    def __init__(self, order: list[int]) -> None:
         self.order: list[int] = order
-        self.rules: list[Rule] = rules
+
+    @classmethod
+    def set_rules(cls, rules: list[Rule]) -> None:
+        cls.rules = rules
 
     def _check_rule(self, rule: Rule) -> bool:
         if rule.first not in self.order or rule.second not in self.order:
@@ -40,6 +45,6 @@ class PageUpdate:
                     self.fix()
 
 
-def to_update(line: str, rules: list[Rule]) -> PageUpdate:
+def to_update(line: str) -> PageUpdate:
     vals = [int(val) for val in line.split(",")]
-    return PageUpdate(vals, rules)
+    return PageUpdate(vals)
