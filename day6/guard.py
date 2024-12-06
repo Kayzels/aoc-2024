@@ -1,5 +1,7 @@
 from enum import Enum
-from typing import NamedTuple
+from typing import NamedTuple, Final
+
+Board = list[list[str]]
 
 
 class Direction(Enum):
@@ -15,12 +17,13 @@ class Position(NamedTuple):
 
 
 class Guard:
-    def __init__(
-        self, direction: Direction, position: Position, board: list[list[str]]
-    ):
+    def __init__(self, direction: Direction, position: Position, board: Board):
         self.direction: Direction = direction
         self.position: Position = position
-        self.board: list[list[str]] = board
+        self.board: Board = board
+        self.start: Final[Position] = position
+        self.board[self.start.row][self.start.col] = "S"
+        self.looping: bool = False
 
     def turn(self) -> None:
         match self.direction:
@@ -48,6 +51,8 @@ class Guard:
         return False
 
     def next_position(self) -> Position | None:
+        if self.looping:
+            return None
         match self.direction:
             case Direction.UP:
                 next_position = Position(self.position.row - 1, self.position.col)
@@ -64,19 +69,50 @@ class Guard:
             return self.next_position()
         return next_position
 
+    def write_dir(self, next_position: Position) -> None:
+        if not self.on_board(next_position) or self.looping:
+            return
+        board_loc = self.board[next_position.row][next_position.col]
+        match self.direction:
+            case Direction.UP:
+                if "U" in board_loc:
+                    self.looping = True
+                    return
+                self.board[next_position.row][next_position.col] += "U"
+            case Direction.RIGHT:
+                if "R" in board_loc:
+                    self.looping = True
+                    return
+                self.board[next_position.row][next_position.col] += "R"
+            case Direction.DOWN:
+                if "D" in board_loc:
+                    self.looping = True
+                    return
+                self.board[next_position.row][next_position.col] += "D"
+            case Direction.LEFT:
+                if "L" in board_loc:
+                    self.looping = True
+                    return
+                self.board[next_position.row][next_position.col] += "L"
+
     def travel(self, position: Position | None) -> None:
-        self.board[self.position.row][self.position.col] = "X"
-        if position is not None and self.on_board(position):
+        if not self.looping and position is not None and self.on_board(position):
+            self.write_dir(position)
             self.position = position
 
     def count(self) -> int:
         acc = 0
         for line in self.board:
-            acc += line.count("X")
+            for word in line:
+                counted = False
+                for letter in ("S", "U", "R", "D", "L"):
+                    if letter in word and not counted:
+                        acc += 1
+                        counted = True
         return acc
 
 
-def get_start(board: list[list[str]]) -> tuple[Direction, Position]:
+def get_start(board: Board) -> tuple[Direction, Position]:
     for row, line in enumerate(board):
         match line:
             case line if "^" in line:
