@@ -5,11 +5,11 @@ def do(
         return False
     if index >= len(nums):
         return acc == test
+
     if acc == 0:
         mult_acc = nums[index]
     else:
         mult_acc = acc * nums[index]
-
     mult_check = do(mult_acc, test, nums, index + 1, concat)
     if mult_check:
         return True
