@@ -67,7 +67,7 @@ def calculate(positions: list[Position]) -> int:
     return acc
 
 
-with open("./day9/test_input") as file:
+with open("./day9/input") as file:
     info = file.readline().strip()
 
 positions = convert(to_positions(info))
